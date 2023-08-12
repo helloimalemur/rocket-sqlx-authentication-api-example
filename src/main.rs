@@ -3,8 +3,6 @@ extern crate rocket;
 use rocket::serde::{json::Json};
 use std::collections::HashMap;
 use std::net::SocketAddr;
-use std::process;
-use std::process::Stdio;
 mod entities;
 mod manage_sessions;
 use manage_sessions::*;
@@ -159,7 +157,7 @@ impl Fairing for CORS {
 
 #[rocket::main]
 pub async fn main() {
-    // load config
+    // load configuration file
     let settings = Config::builder()
         .add_source(config::File::with_name("config/Settings"))
         .build()
@@ -168,15 +166,12 @@ pub async fn main() {
         .try_deserialize::<HashMap<String, String>>()
         .unwrap();
 
-    //logging
-
+    // setup logging request logging to file
     let stdout = ConsoleAppender::builder().build();
-
     let requests = FileAppender::builder()
         .encoder(Box::new(PatternEncoder::new("{d} - {m}{n}")))
         .build("log/requests.log")
         .unwrap();
-
     #[allow(unused_variables)]
     let config = LogConfig::builder()
         .appender(Appender::builder().build("stdout", Box::new(stdout)))
@@ -185,27 +180,17 @@ pub async fn main() {
         .logger(Logger::builder().appender("requests").additive(true).build("app::requests", LevelFilter::Info))
         .build(Root::builder().appender("stdout").build(LevelFilter::Warn))
         .unwrap();
-
+    // logging to info
     info!(target: "app::requests","Starting");
 
 
-    // debug
-    // println!("{:#?}", settings_map);
-    let _database_name = settings_map.get("database_name").unwrap().as_str();
-    ////////////
 
-    let _who = process::Command::new("hostname")
-        .stdout(Stdio::inherit())
-        .stderr(Stdio::inherit())
-        .output()
-        .is_ok();
 
+    // set database_url string
     let database_url: &str = settings_map.get("database_url").unwrap().as_str();
     println!("{}", database_url.clone());
 
 
-
-    println!("{}", database_url);
     // launch rocket
     tokio::spawn(async {
         let start = Instant::now();
