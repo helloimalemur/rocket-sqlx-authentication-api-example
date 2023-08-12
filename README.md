@@ -1,37 +1,44 @@
 ## Session based auth
     Implement authentication by storing the logged in user's session id into a cookie. If a user is present with the session cookie, then this user is authenticated. If there isn’t a valid cookie present, then we aren’t currently authenticated. We can store additional data into the session as needed, such as the user’s set of permissions or anything else that is potentially useful. Typically session IDs are transmitted by header, or by injecting them into the URL.
 
-
-## database user
-    CREATE USER 'dev'@'%' IDENTIFIED WITH sha256_password BY 'password';
-    CREATE USER 'dev'@'%' IDENTIFIED BY 'password';
-    GRANT ALL PRIVILEGES ON testing.* TO 'dev'@'%';
-    FLUSH PRIVILEGES;
-
-
-## database
-    DATABASE_URL="mysql://dev:password@localhost:3306/testing"
-
-## Tables needed in the Database;
+## Create database
 ```sql
-    CREATE TABLE `users` (`id` int(11) NOT NULL AUTO_INCREMENT,
-    `username` varchar(255) NOT NULL,
-    `password` varchar(255) NOT NULL,
-    `email` varchar(255) NOT NULL,
-    `first_name` varchar(255) NOT NULL,
-    `last_name` varchar(255) NOT NULL,
-    PRIMARY KEY (`id`));
+CREATE DATABASE testing;
+```
+
+## Create tables needed in the Database;
+```sql
+CREATE TABLE `users` (`id` int(11) NOT NULL AUTO_INCREMENT,
+`username` varchar(255) NOT NULL,
+`password` varchar(255) NOT NULL,
+`email` varchar(255) NOT NULL,
+`first_name` varchar(255) NOT NULL,
+`last_name` varchar(255) NOT NULL,
+PRIMARY KEY (`id`));
 ```
 
 ```sql
-    CREATE TABLE `web_sessions` (`id` int(11) NOT NULL AUTO_INCREMENT,
-    `user_name` varchar(255) NOT NULL,
-    `session_id` varchar(255) NOT NULL,
-    `date_created` varchar(255) NOT NULL,
-    PRIMARY KEY (`id`));
+CREATE TABLE `web_sessions` (`id` int(11) NOT NULL AUTO_INCREMENT,
+`user_name` varchar(255) NOT NULL,
+`session_id` varchar(255) NOT NULL,
+`date_created` varchar(255) NOT NULL,
+PRIMARY KEY (`id`));
 ```
 
+## Create database user
+```sql
+CREATE USER 'dev'@'%' IDENTIFIED WITH sha256_password BY 'password';
+CREATE USER 'dev'@'%' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON testing.* TO 'dev'@'%';
+FLUSH PRIVILEGES;
+```
 
+## Edit config/Settings.toml
+```toml
+database_url = "mysql://dev:password@localhost:3306/testing"
+database_name = "testing"
+api_key = "yourapikey"
+```
 
 ## test and dev functions;
 ```shell
