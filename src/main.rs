@@ -194,7 +194,7 @@ pub async fn main() {
     let _database_name = settings_map.get("database_name").unwrap().as_str();
     ////////////
 
-    let who = process::Command::new("hostname")
+    let _who = process::Command::new("hostname")
         .stdout(Stdio::inherit())
         .stderr(Stdio::inherit())
         .output()
