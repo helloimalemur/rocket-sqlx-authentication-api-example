@@ -166,6 +166,13 @@ pub async fn main() {
         .try_deserialize::<HashMap<String, String>>()
         .unwrap();
 
+    let config = rocket::Config {
+        port: 8030,
+        address: std::net::Ipv4Addr::new(0, 0, 0, 0).into(),
+        ..rocket::Config::debug_default()
+    };
+
+
     // setup logging request logging to file
     let stdout = ConsoleAppender::builder().build();
     let requests = FileAppender::builder()
@@ -173,7 +180,7 @@ pub async fn main() {
         .build("log/requests.log")
         .unwrap();
     #[allow(unused_variables)]
-    let config = LogConfig::builder()
+    let log_config = LogConfig::builder()
         .appender(Appender::builder().build("stdout", Box::new(stdout)))
         .appender(Appender::builder().build("requests", Box::new(requests)))
         // .logger(Logger::builder().build("app::backend::db", LevelFilter::Info))
@@ -184,31 +191,25 @@ pub async fn main() {
     info!(target: "app::requests","Starting");
 
 
-
-
     // set database_url string
     let database_url: &str = settings_map.get("database_url").unwrap().as_str();
     println!("{}", database_url.clone());
 
 
-    // launch rocket
+    // start re-occuring task
     tokio::spawn(async {
         let start = Instant::now();
         let mut interval = interval_at(start, tokio::time::Duration::from_secs(5));
-
         loop {
             interval.tick().await;
         }
     });
 
-    let config = rocket::Config {
-        port: 8030,
-        address: std::net::Ipv4Addr::new(0, 0, 0, 0).into(),
-        ..rocket::Config::debug_default()
-    };
-
+    // initialize database connection
     let pool = MySqlPool::connect(&database_url).await.expect("database connection");
 
+
+    // launch Rocket
     custom(&config)
         .manage::<MySqlPool>(pool)
         .mount(
