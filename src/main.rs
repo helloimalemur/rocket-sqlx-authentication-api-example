@@ -177,7 +177,7 @@ pub async fn main() {
     let stdout = ConsoleAppender::builder().build();
     let requests = FileAppender::builder()
         .encoder(Box::new(PatternEncoder::new("{d} - {m}{n}")))
-        .build("log/requests.log")
+        .build(settings_map.get("log_path").unwrap().as_str())
         .unwrap();
     #[allow(unused_variables)]
     let log_config = LogConfig::builder()
