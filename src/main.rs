@@ -59,7 +59,6 @@ async fn get_user(
     info!(target:"app::requests", "GET USER via SESSION - From: {}, USER_RESULT: {}", socket_addr.ip().to_string(), result);
     result
 }
-// // // //
 
 
 #[post("/api/adduser", data = "<data>")]
@@ -155,6 +154,11 @@ impl Fairing for CORS {
     }
 }
 
+
+// // // // // // // // // // // // // // // // // // // // // // // //
+// // // // // // // // // // // // // // // // // // // // // // // //
+
+
 #[rocket::main]
 pub async fn main() {
     // load configuration file
@@ -207,7 +211,6 @@ pub async fn main() {
 
     // initialize database connection
     let pool = MySqlPool::connect(&database_url).await.expect("database connection");
-
 
     // launch Rocket
     custom(&config)
