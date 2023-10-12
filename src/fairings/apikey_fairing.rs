@@ -1,6 +1,6 @@
 use rocket::http::Status;
-use rocket::outcome::{Outcome};
-use rocket::request::{Request, FromRequest};
+use rocket::outcome::Outcome;
+use rocket::request::{FromRequest, Request};
 
 pub struct ApiKey<'r>(&'r str);
 
@@ -25,5 +25,11 @@ impl<'r> FromRequest<'r> for ApiKey<'r> {
             Some(key) if is_valid(key) => Outcome::Success(ApiKey(key)),
             Some(_) => Outcome::Failure((Status::BadRequest, ApiKeyError::InvalidError)),
         }
+    }
+}
+
+impl<'r> ToString for ApiKey<'r> {
+    fn to_string(&self) -> String {
+        String::from_utf8(Vec::from(self.0.as_bytes())).unwrap()
     }
 }

@@ -1,6 +1,6 @@
 use serde::*;
 
-#[derive(Debug, Ord, PartialOrd, Clone,PartialEq, Eq, Deserialize, Serialize,)]
+#[derive(Debug, Ord, PartialOrd, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct User {
     #[serde(default)]
     pub id: i32,

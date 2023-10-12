@@ -1,22 +1,26 @@
-use rocket::serde::json::Json;
-use rocket::State;
-use sqlx::{MySqlPool};
 use crate::entities::login::Login;
 use crate::entities::users::User;
-use crate::manage_sessions::session_funcs::{check_user, create_session_key, does_a_session_exist, write_session_to_db};
+use crate::manage_sessions::session_funcs::{
+    check_user, create_session_key, does_a_session_exist, write_session_to_db,
+};
 use crate::manage_users::user_funcs;
+use rocket::serde::json::Json;
+use rocket::State;
+use sqlx::MySqlPool;
 
 pub async fn new_user(new_user: User, pool: &rocket::State<MySqlPool>) {
     let _insert = sqlx::query(
         "INSERT INTO users (username, password, email, first_name, last_name)
-        VALUES (?, ?, ?, ?, ?)")
-        .bind(new_user.username)
-        .bind(new_user.password)
-        .bind(new_user.email)
-        .bind(new_user.first_name)
-        .bind(new_user.last_name)
-        .execute(&**pool)
-        .await.unwrap();
+        VALUES (?, ?, ?, ?, ?)",
+    )
+    .bind(new_user.username)
+    .bind(new_user.password)
+    .bind(new_user.email)
+    .bind(new_user.first_name)
+    .bind(new_user.last_name)
+    .execute(&**pool)
+    .await
+    .unwrap();
 }
 
 pub async fn create_new_user(data: Json<User>, pool: &State<MySqlPool>) -> bool {
@@ -28,20 +32,21 @@ pub async fn create_new_user(data: Json<User>, pool: &State<MySqlPool>) -> bool 
         first_name: data.first_name.to_string(),
         last_name: data.last_name.to_string(),
     };
-    let user_query = Login {username: new_user.clone().username, password: new_user.clone().password, ipaddress: "".to_string() };
+    let user_query = Login {
+        username: new_user.clone().username,
+        password: new_user.clone().password,
+        ipaddress: "".to_string(),
+    };
     if check_user(user_query, pool).await {
         println!("{}", ".");
-        return false
-    }else {
+        return false;
+    } else {
         user_funcs::new_user(new_user, pool).await;
-        return true
+        return true;
     }
 }
 
-pub async fn login_user(
-    pool: &State<MySqlPool>,
-    data: Json<Login>,
-) -> String {
+pub async fn login_user(pool: &State<MySqlPool>, data: Json<Login>) -> String {
     let user_login = Login {
         username: data.username.to_string(),
         password: data.password.to_string(),
